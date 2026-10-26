@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Neural Manifold Field</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: #f6f3ed;
+      transition: background-color 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    html.dark body {
+      background-color: #0b0f15;
+    }
+
+    html.embed, html.embed body, html.embed.dark body { background: transparent; }
+
+    canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    /* Floating Theme Switcher */
+    .controls {
+      position: fixed;
+      top: 1.5rem;
+      right: 1.5rem;
+      z-index: 10;
+    }
+
+    .theme-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      border-radius: 9999px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+      cursor: pointer;
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      background: rgba(255, 255, 255, 0.65);
+      backdrop-filter: blur(12px);
+      color: #3a322d;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+      transition: all 0.3s ease;
+      user-select: none;
+    }
+
+    .theme-btn:hover {
+      background: rgba(255, 255, 255, 0.9);
+      transform: translateY(-1px);
+    }
+
+    html.dark .theme-btn {
+      background: rgba(18, 24, 34, 0.65);
+      color: #dbe4ee;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    }
+
+    html.dark .theme-btn:hover {
+      background: rgba(26, 34, 48, 0.9);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="controls">
+    <button id="themeToggle" class="theme-btn">
+      <span id="themeIcon">🌙</span>
+      <span id="themeLabel">Dark Mode</span>
+    </button>
+  </div>
+
+  <canvas id="manifoldCanvas"></canvas>
+
+  <script>
+    const canvas = document.getElementById("manifoldCanvas");
+    const embedded = new URLSearchParams(window.location.search).has("embed");
+    if (embedded) {
+      document.documentElement.classList.add("embed");
+      document.querySelector(".controls").style.display = "none";
+    }
+    const ctx = canvas.getContext("2d", { alpha: true });
+
+    let width = 0;
+    let height = 0;
+    let dpr = 1;
+
+    // --- Interactive Metric Inertia ---
+    const mouse = { 
+      x: -9999, 
+      y: -9999, 
+      targetX: -9999, 
+      targetY: -9999,
+      intensity: 0,
+      targetIntensity: 0
+    };
+
+    window.addEventListener("pointermove", (e) => {
+      mouse.targetX = e.clientX;
+      mouse.targetY = e.clientY;
+      mouse.targetIntensity = 1.0;
+    });
+
+    window.addEventListener("pointerleave", () => {
+      mouse.targetIntensity = 0.0;
+    });
+
+    window.addEventListener("message", (event) => {
+      if (!embedded || event.origin !== window.location.origin || event.source !== window.parent) return;
+      const message = event.data;
+      if (message?.type === "pointermove" && Number.isFinite(message.x) && Number.isFinite(message.y)) {
+        mouse.targetX = message.x;
+        mouse.targetY = message.y;
+        mouse.targetIntensity = 1.0;
+      } else if (message?.type === "pointerleave") {
+        mouse.targetIntensity = 0.0;
+      }
+    });
+
+    const resize = () => {
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      width = window.innerWidth;
+      height = window.innerHeight;
+      canvas.width = width * dpr;
+      canvas.height = height * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    };
+    resize();
+    window.addEventListener("resize", resize);
+
+    // --- Isometric Constants ---
+    const ISO_ANGLE = Math.PI / 6; // 30 degrees
+    const COS_A = Math.cos(ISO_ANGLE);
+    const SIN_A = Math.sin(ISO_ANGLE);
+
+    const COLS = 56;
+    const ROWS = 56;
+    const U_MIN = -0.45, U_MAX = 1.45;
+    const V_MIN = -0.45, V_MAX = 1.45;
+
+    // --- Parametric Manifold Metric Function ---
+    function getElevation(u, v, t, mouseU, mouseV, mouseStrength) {
+      const macro1 = Math.sin(u * 2.4 + t * 0.35) * Math.cos(v * 2.0 + t * 0.28) * 1.5;
+      const du = u - 0.5;
+      const dv = v - 0.5;
+      const saddle = (Math.sin(du * 3.0 - t * 0.22) * du - Math.cos(dv * 2.8 + t * 0.2) * dv) * 1.15;
+      const ripple1 = Math.sin(u * 5.8 + v * 4.2 + t * 0.55) * 0.32;
+      const ripple2 = Math.cos(u * 8.2 - v * 6.8 - t * 0.45) * 0.16;
+
+      let interaction = 0;
+      if (mouseStrength > 0.001) {
+        const dist = Math.hypot(u - mouseU, v - mouseV);
+        interaction = -Math.exp(-dist * dist * 16.0) * (0.85 * mouseStrength);
+      }
+
+      return macro1 + saddle + ripple1 + ripple2 + interaction;
+    }
+
+    // High precision partial derivatives (∇f)
+    function getGradient(u, v, t, mouseU, mouseV, mouseStrength) {
+      const eps = 0.001;
+      const zR = getElevation(u + eps, v, t, mouseU, mouseV, mouseStrength);
+      const zL = getElevation(u - eps, v, t, mouseU, mouseV, mouseStrength);
+      const zD = getElevation(u, v + eps, t, mouseU, mouseV, mouseStrength);
+      const zU = getElevation(u, v - eps, t, mouseU, mouseV, mouseStrength);
+
+      return {
+        du: (zR - zL) / (2 * eps),
+        dv: (zD - zU) / (2 * eps)
+      };
+    }
+
+    function screenToUV(sx, sy, spanX, spanY, centerX, centerY) {
+      const dx = sx - centerX;
+      const dy = sy - centerY;
+      const u = (dx / (spanX * COS_A) + dy / (spanY * SIN_A)) * 0.5 + 0.5;
+      const v = (dy / (spanY * SIN_A) - dx / (spanX * COS_A)) * 0.5 + 0.5;
+      return { u, v };
+    }
+
+    // --- 3D Polyhedron (Icosahedron) ---
+    const PHI = (1 + Math.sqrt(5)) / 2;
+    const RAW_VERTS = [
+      [-1,  PHI, 0], [ 1,  PHI, 0], [-1, -PHI, 0], [ 1, -PHI, 0],
+      [0, -1,  PHI], [0,  1,  PHI], [0, -1, -PHI], [0,  1, -PHI],
+      [ PHI, 0, -1], [ PHI, 0,  1], [-PHI, 0, -1], [-PHI, 0,  1]
+    ];
+    const ICO_VERTS = RAW_VERTS.map(v => {
+      const len = Math.hypot(v[0], v[1], v[2]);
+      return [v[0] / len, v[1] / len, v[2] / len];
+    });
+
+    const ICO_EDGES = [
+      [0,11],[0,5],[0,1],[0,7],[0,10],
+      [1,5],[5,11],[11,10],[10,7],[7,1],
+      [3,9],[3,4],[3,2],[3,6],[3,8],
+      [4,9],[9,8],[8,6],[6,2],[2,4],
+      [5,9],[5,4],[11,4],[11,2],[10,2],
+      [10,6],[7,6],[7,8],[1,8],[1,9]
+    ];
+
+    // --- Rolling Particle State ---
+    const roller = {
+      state: "IDLE", // IDLE | ACTIVE | FADING
+      u: 0,
+      v: 0,
+      vu: 0,
+      vv: 0,
+      rot: [
+        [1, 0, 0],
+        [0, 1, 0],
+        [0, 0, 1]
+      ],
+      trail: [],
+      framesAlive: 0,
+      enteredScreen: false,
+      respawnTimer: 75,
+      radius: 17,
+    };
+
+    function findOffscreenBorderPeak(t, approxU, approxV, spanX, spanY, centerX, centerY) {
+      let maxZ = -Infinity;
+      let bestCandidate = null;
+      const samplesPerSide = 20;
+      const margin = roller.radius * 2.5;
+      const perimeter = [];
+
+      for (let i = 0; i <= samplesPerSide; i++) {
+        const fx = -margin + (i / samplesPerSide) * (width + margin * 2);
+        const fy = -margin + (i / samplesPerSide) * (height + margin * 2);
+        perimeter.push({ x: fx, y: -margin, dirX: 0, dirY: 1 });
+        perimeter.push({ x: fx, y: height + margin, dirX: 0, dirY: -1 });
+        perimeter.push({ x: -margin, y: fy, dirX: 1, dirY: 0 });
+        perimeter.push({ x: width + margin, y: fy, dirX: -1, dirY: 0 });
+      }
+
+      for (const point of perimeter) {
+        const uv = screenToUV(point.x, point.y, spanX, spanY, centerX, centerY);
+        const z = getElevation(uv.u, uv.v, t, approxU, approxV, mouse.intensity);
+        if (z > maxZ) {
+          maxZ = z;
+          bestCandidate = { u: uv.u, v: uv.v, dirX: point.dirX, dirY: point.dirY };
+        }
+      }
+
+      return bestCandidate || { u: 0.5, v: -0.1, dirX: 0, dirY: 1 };
+    }
+
+    function spawnRoller(t, approxU, approxV, spanX, spanY, centerX, centerY) {
+      const peak = findOffscreenBorderPeak(t, approxU, approxV, spanX, spanY, centerX, centerY);
+      roller.u = peak.u;
+      roller.v = peak.v;
+
+      const grad = getGradient(peak.u, peak.v, t, approxU, approxV, mouse.intensity);
+      const inwardU = (peak.dirX / (spanX * COS_A) + peak.dirY / (spanY * SIN_A)) * 0.5;
+      const inwardV = (peak.dirY / (spanY * SIN_A) - peak.dirX / (spanX * COS_A)) * 0.5;
+      const inwardLen = Math.hypot(inwardU, inwardV) || 1;
+      const baseSpeed = 0.0012;
+      roller.vu = (inwardU / inwardLen) * baseSpeed * 0.7 - grad.du * 0.00008;
+      roller.vv = (inwardV / inwardLen) * baseSpeed * 0.7 - grad.dv * 0.00008;
+
+      roller.trail = [];
+      roller.framesAlive = 0;
+      roller.enteredScreen = false;
+      roller.state = "ACTIVE";
+      roller.rot = [[1,0,0],[0,1,0],[0,0,1]];
+    }
+
+    // 3D Axis-Angle Matrix Rotation
+    function rotateMatrix(mat, axis, angle) {
+      const [ax, ay, az] = axis;
+      const cos = Math.cos(angle);
+      const sin = Math.sin(angle);
+      const dot = (1 - cos);
+
+      const R = [
+        [cos + ax * ax * dot, ax * ay * dot - az * sin, ax * az * dot + ay * sin],
+        [ay * ax * dot + az * sin, cos + ay * ay * dot, ay * az * dot - ax * sin],
+        [az * ax * dot - ay * sin, az * ay * dot + ax * sin, cos + az * az * dot]
+      ];
+
+      const res = [[0,0,0],[0,0,0],[0,0,0]];
+      for (let r = 0; r < 3; r++) {
+        for (let c = 0; c < 3; c++) {
+          res[r][c] = R[r][0] * mat[0][c] + R[r][1] * mat[1][c] + R[r][2] * mat[2][c];
+        }
+      }
+      return res;
+    }
+
+    let time = 0;
+
+    function render() {
+      time += 0.0055;
+
+      const LERP_SPEED = 0.022;
+      mouse.x += (mouse.targetX - mouse.x) * LERP_SPEED;
+      mouse.y += (mouse.targetY - mouse.y) * LERP_SPEED;
+      mouse.intensity += (mouse.targetIntensity - mouse.intensity) * 0.02;
+
+      const isDark = embedded
+        ? window.parent.document.documentElement.classList.contains("dark")
+        : document.documentElement.classList.contains("dark");
+
+      if (embedded) ctx.clearRect(0, 0, width, height);
+      else {
+        ctx.fillStyle = isDark ? "#0b0f15" : "#f6f3ed";
+        ctx.fillRect(0, 0, width, height);
+      }
+
+      const diag = Math.hypot(width, height);
+      const spanX = diag * 1.45;
+      const spanY = diag * 1.45;
+      const elevationScale = Math.min(width, height) * 0.24;
+
+      const centerX = width * 0.5;
+      const centerY = height * 0.5;
+
+      const mouseUV = screenToUV(mouse.x, mouse.y, spanX, spanY, centerX, centerY);
+      const approxU = mouseUV.u;
+      const approxV = mouseUV.v;
+
+      function toScreen(u, v, z) {
+        const su = (u - 0.5) * spanX;
+        const sv = (v - 0.5) * spanY;
+        const sz = z * elevationScale;
+        return {
+          x: centerX + (su - sv) * COS_A,
+          y: centerY + (su + sv) * SIN_A - sz
+        };
+      }
+
+      // --- 1. Manifold Grid Computation ---
+      const grid = [];
+      for (let i = 0; i <= COLS; i++) {
+        grid[i] = [];
+        const u = U_MIN + (i / COLS) * (U_MAX - U_MIN);
+        for (let j = 0; j <= ROWS; j++) {
+          const v = V_MIN + (j / ROWS) * (V_MAX - V_MIN);
+          const z = getElevation(u, v, time, approxU, approxV, mouse.intensity);
+          const pt = toScreen(u, v, z);
+          grid[i][j] = { x: pt.x, y: pt.y, z: z };
+        }
+      }
+
+      // --- 2. V-Isocurves ---
+      for (let j = 0; j <= ROWS; j++) {
+        const isPrimary = j % 4 === 0;
+        ctx.beginPath();
+        for (let i = 0; i <= COLS; i++) {
+          const pt = grid[i][j];
+          if (i === 0) ctx.moveTo(pt.x, pt.y);
+          else ctx.lineTo(pt.x, pt.y);
+        }
+
+        ctx.strokeStyle = isDark
+          ? (isPrimary ? "rgba(164, 192, 218, 0.24)" : "rgba(110, 140, 175, 0.08)")
+          : (isPrimary ? "rgba(130, 95, 75, 0.32)" : "rgba(175, 145, 130, 0.12)");
+        ctx.lineWidth = isPrimary ? 1.15 : 0.65;
+        ctx.stroke();
+      }
+
+      // --- 3. U-Isocurves ---
+      for (let i = 0; i <= COLS; i++) {
+        const isPrimary = i % 4 === 0;
+        ctx.beginPath();
+        for (let j = 0; j <= ROWS; j++) {
+          const pt = grid[i][j];
+          if (j === 0) ctx.moveTo(pt.x, pt.y);
+          else ctx.lineTo(pt.x, pt.y);
+        }
+
+        ctx.strokeStyle = isDark
+          ? (isPrimary ? "rgba(214, 150, 115, 0.22)" : "rgba(160, 185, 210, 0.07)")
+          : (isPrimary ? "rgba(185, 115, 80, 0.34)" : "rgba(165, 145, 135, 0.11)");
+        ctx.lineWidth = isPrimary ? 1.15 : 0.65;
+        ctx.stroke();
+      }
+
+      // --- 4. Curvature Ribbons ---
+      for (let i = 0; i < COLS; i += 4) {
+        ctx.beginPath();
+        for (let j = 0; j <= ROWS; j++) {
+          const pt = grid[i][j];
+          if (j === 0) ctx.moveTo(pt.x, pt.y);
+          else ctx.lineTo(pt.x, pt.y);
+        }
+        for (let j = ROWS; j >= 0; j--) {
+          const pt = grid[i + 2][j];
+          ctx.lineTo(pt.x, pt.y);
+        }
+        ctx.closePath();
+
+        ctx.fillStyle = isDark
+          ? ((i % 8 === 0) ? "rgba(214, 150, 115, 0.016)" : "rgba(148, 178, 206, 0.018)")
+          : ((i % 8 === 0) ? "rgba(214, 150, 115, 0.035)" : "rgba(148, 178, 206, 0.026)");
+        ctx.fill();
+      }
+
+      // --- 5. Faithful Physical Gradient Descent ---
+      if (roller.state === "IDLE") {
+        roller.respawnTimer--;
+        if (roller.respawnTimer <= 0) {
+          spawnRoller(time, approxU, approxV, spanX, spanY, centerX, centerY);
+        }
+      } else if (roller.state === "ACTIVE") {
+        roller.framesAlive++;
+
+        // Multiple sub-steps per frame for stable, physical motion
+        const SUBSTEPS = 4;
+        let lastScreenPt = toScreen(roller.u, roller.v, getElevation(roller.u, roller.v, time, approxU, approxV, mouse.intensity));
+        let deltaScreenX = 0;
+        let deltaScreenY = 0;
+
+        for (let step = 0; step < SUBSTEPS; step++) {
+          const grad = getGradient(roller.u, roller.v, time, approxU, approxV, mouse.intensity);
+
+          // Force proportional to negative gradient (gravity down the slope)
+          // Scaled so rolling stays calm and legible
+          const ACCEL = 0.000045;
+          const FRICTION = 0.993; // Rolling drag / air resistance
+
+          roller.vu = (roller.vu - grad.du * ACCEL) * FRICTION;
+          roller.vv = (roller.vv - grad.dv * ACCEL) * FRICTION;
+
+          // Cap max speed so steep cliffs don't launch it
+          const maxSpd = 0.0035;
+          let curSpd = Math.hypot(roller.vu, roller.vv);
+          if (curSpd < 0.0003) {
+            roller.vu += Math.sin(time * 0.9 + roller.u * 3) * 0.000035;
+            roller.vv += Math.cos(time * 0.9 + roller.v * 3) * 0.000035;
+            curSpd = Math.hypot(roller.vu, roller.vv);
+          }
+          if (curSpd > maxSpd) {
+            roller.vu = (roller.vu / curSpd) * maxSpd;
+            roller.vv = (roller.vv / curSpd) * maxSpd;
+          }
+
+          roller.u += roller.vu / SUBSTEPS;
+          roller.v += roller.vv / SUBSTEPS;
+        }
+
+        const currentZ = getElevation(roller.u, roller.v, time, approxU, approxV, mouse.intensity);
+        const centerPt = toScreen(roller.u, roller.v, currentZ);
+
+        deltaScreenX = centerPt.x - lastScreenPt.x;
+        deltaScreenY = centerPt.y - lastScreenPt.y;
+
+        // Keep the full path until the polyhedron leaves the viewport.
+        const lastTrailPoint = roller.trail[roller.trail.length - 1];
+        if (!lastTrailPoint || Math.hypot(roller.u - lastTrailPoint.u, roller.v - lastTrailPoint.v) > 0.003) {
+          roller.trail.push({ u: roller.u, v: roller.v });
+        }
+
+        // 3D Roll: Rotate around axis perpendicular to screen velocity
+        const screenDist = Math.hypot(deltaScreenX, deltaScreenY);
+        if (screenDist > 0.01) {
+          const axisX = -deltaScreenY / screenDist;
+          const axisY =  deltaScreenX / screenDist;
+          // Roll angle = distance traveled / radius
+          const rollAngle = screenDist / roller.radius;
+          roller.rot = rotateMatrix(roller.rot, [axisX, axisY, 0], rollAngle);
+        }
+
+        // Draw Descent Trail (gradient-descent path)
+        if (roller.trail.length > 1) {
+          const trailPoints = roller.trail.map((point) => {
+            const z = getElevation(point.u, point.v, time, approxU, approxV, mouse.intensity);
+            return toScreen(point.u, point.v, z);
+          });
+          for (let k = 1; k < roller.trail.length; k++) {
+            const progress = k / roller.trail.length; // Fades out at the tail
+            ctx.beginPath();
+            ctx.moveTo(trailPoints[k - 1].x, trailPoints[k - 1].y);
+            ctx.lineTo(trailPoints[k].x, trailPoints[k].y);
+
+            ctx.strokeStyle = isDark
+              ? `rgba(224, 160, 110, ${(progress * 0.45).toFixed(2)})`
+              : `rgba(185, 90, 50, ${(progress * 0.5).toFixed(2)})`;
+            ctx.lineWidth = 1.0 + progress * 0.6;
+            ctx.stroke();
+          }
+        }
+
+        // Ground shadow (ambient occlusion on manifold surface)
+        ctx.beginPath();
+        ctx.ellipse(
+          centerPt.x, 
+          centerPt.y + 2, 
+          roller.radius * 0.85, 
+          roller.radius * 0.35, 
+          0, 0, Math.PI * 2
+        );
+        ctx.fillStyle = isDark ? "rgba(0, 0, 0, 0.45)" : "rgba(60, 30, 20, 0.15)";
+        ctx.fill();
+
+        // Polyhedron Center (hover slightly above surface)
+        const polyCenterY = centerPt.y - roller.radius * 0.95;
+        const R = roller.radius;
+
+        // Project 3D vertices using current rotation matrix
+        const transformedVerts = ICO_VERTS.map(v => {
+          const x = v[0] * roller.rot[0][0] + v[1] * roller.rot[0][1] + v[2] * roller.rot[0][2];
+          const y = v[0] * roller.rot[1][0] + v[1] * roller.rot[1][1] + v[2] * roller.rot[1][2];
+          const z = v[0] * roller.rot[2][0] + v[1] * roller.rot[2][1] + v[2] * roller.rot[2][2];
+          return {
+            x: centerPt.x + x * R,
+            y: polyCenterY + y * R,
+            z: z
+          };
+        });
+
+        // Render Polyhedron Edges with depth-cueing
+        for (const [s, e] of ICO_EDGES) {
+          const p1 = transformedVerts[s];
+          const p2 = transformedVerts[e];
+          const avgZ = (p1.z + p2.z) * 0.5;
+          const alpha = 0.25 + (avgZ + 1.0) * 0.35;
+
+          ctx.beginPath();
+          ctx.moveTo(p1.x, p1.y);
+          ctx.lineTo(p2.x, p2.y);
+          ctx.strokeStyle = isDark
+            ? `rgba(240, 190, 150, ${alpha.toFixed(2)})`
+            : `rgba(145, 60, 30, ${alpha.toFixed(2)})`;
+          ctx.lineWidth = avgZ > 0.1 ? 1.4 : 0.85;
+          ctx.stroke();
+        }
+
+        // Internal central node
+        ctx.beginPath();
+        ctx.arc(centerPt.x, polyCenterY, 2.2, 0, Math.PI * 2);
+        ctx.fillStyle = isDark ? "#ffd0a0" : "#a84320";
+        ctx.fill();
+
+        const margin = roller.radius * 2;
+        const insideViewport = centerPt.x >= -margin && centerPt.x <= width + margin &&
+          centerPt.y >= -margin && centerPt.y <= height + margin;
+        if (insideViewport) roller.enteredScreen = true;
+
+        const exitedViewport = roller.enteredScreen && !insideViewport;
+        // Only time out a polygon that never made it onto the screen. Once
+        // visible, it remains until it exits, regardless of its age or speed.
+        const failedToEnter = !roller.enteredScreen && roller.framesAlive > 2400;
+        if (exitedViewport || failedToEnter) {
+          roller.state = "FADING";
+        }
+      } else if (roller.state === "FADING") {
+        if (roller.trail.length > 1) {
+          const trailPoints = roller.trail.map((point) => {
+            const z = getElevation(point.u, point.v, time, approxU, approxV, mouse.intensity);
+            return toScreen(point.u, point.v, z);
+          });
+          for (let k = 1; k < trailPoints.length; k++) {
+            const progress = k / trailPoints.length;
+            ctx.beginPath();
+            ctx.moveTo(trailPoints[k - 1].x, trailPoints[k - 1].y);
+            ctx.lineTo(trailPoints[k].x, trailPoints[k].y);
+            ctx.strokeStyle = isDark
+              ? `rgba(224, 160, 110, ${(0.08 + progress * 0.44).toFixed(2)})`
+              : `rgba(185, 90, 50, ${(0.08 + progress * 0.48).toFixed(2)})`;
+            ctx.lineWidth = 0.8 + progress * 0.8;
+            ctx.stroke();
+          }
+          roller.trail.splice(0, 2);
+        }
+        if (roller.trail.length <= 1) {
+          roller.trail = [];
+          roller.state = "IDLE";
+          roller.respawnTimer = 480 + Math.random() * 360;
+        }
+      }
+
+      requestAnimationFrame(render);
+    }
+
+    requestAnimationFrame(render);
+
+    // --- Theme Switcher Logic ---
+    const themeBtn = document.getElementById("themeToggle");
+    const themeIcon = document.getElementById("themeIcon");
+    const themeLabel = document.getElementById("themeLabel");
+
+    if (!embedded) themeBtn.addEventListener("click", () => {
+      const isDark = document.documentElement.classList.toggle("dark");
+      themeIcon.textContent = isDark ? "☀️" : "🌙";
+      themeLabel.textContent = isDark ? "Light Mode" : "Dark Mode";
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,31 @@
+1:"$Sreact.fragment"
+2:"static/chunks/500-fc3b64d9ff4a32a7.js"
+3:"static/chunks/app/layout-e7f0197dc2373919.js"
+4:I[6370,["500","$2","177","$3"],"HeaderProvider"]
+5:I[6563,["500","$2","177","$3"],"Navbar"]
+6:I[7121,[],""]
+7:I[4581,[],""]
+b:"static/chunks/499-4803320f62b0c1e9.js"
+c:"static/chunks/281-9562b9cfa85da733.js"
+d:"static/chunks/app/page-63dc28e85862f731.js"
+e:"InfiniteGridHero"
+f:I[9448,["499","$b","281","$c","974","$d"],"$e"]
+10:I[484,[],"OutletBoundary"]
+11:"$Sreact.suspense"
+14:"ViewportBoundary"
+15:I[484,[],"$14"]
+16:"MetadataBoundary"
+17:I[484,[],"$16"]
+:HL["/_next/static/css/a0c0cb91eb57aa74.css","style"]
+:HL["/_next/static/css/e456ed3e7daea6ba.css","style"]
+9:X
+a:[["children",{"s":"__PAGE__","h":160,"d":{"r":["$","$1","c",{"children":[["$","div",null,{"className":"w-screen h-screen overflow-hidden","children":["$","$Lf",null,{}]}],null,["$","$L10",null,{"children":["$","$11",null,{"name":"Next.MetadataOutlet","children":"$@12"}]}]]}],"p":"$@13","v":null,"s":"$9"}}]]
+0:{"t":{"t":{"s":"","h":80,"d":{"r":["$","$1","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/_next/static/css/a0c0cb91eb57aa74.css","precedence":"next"}],["$","link","1",{"rel":"stylesheet","href":"/_next/static/css/e456ed3e7daea6ba.css","precedence":"next"}]],["$","html",null,{"lang":"en","className":"__variable_4eeef7 __variable_6e1ae4 __variable_c15ed6 dark h-full antialiased","children":["$","body",null,{"className":"h-full flex flex-col bg-[var(--background)] text-[var(--foreground)] overflow-x-hidden","children":["$","$L4",null,{"children":[["$","$L5",null,{}],["$","main",null,{"className":"flex-1","children":["$","$L6",null,{"parallelRouterKey":"children","template":["$","$L7",null,{}],"notFound":[[["$","title",null,{"children":"404: This page could not be found."}],["$","div",null,{"style":{"fontFamily":"system-ui,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\"","height":"100vh","textAlign":"center","display":"flex","flexDirection":"column","alignItems":"center","justifyContent":"center"},"children":["$","div",null,{"children":[["$","style",null,{"dangerouslySetInnerHTML":{"__html":"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}"}}],["$","h1",null,{"className":"next-error-h1","style":{"display":"inline-block","margin":"0 20px 0 0","padding":"0 23px 0 0","fontSize":24,"fontWeight":500,"verticalAlign":"top","lineHeight":"49px"},"children":404}],["$","div",null,{"style":{"display":"inline-block"},"children":["$","h2",null,{"style":{"fontSize":14,"fontWeight":400,"lineHeight":"49px","margin":0},"children":"This page could not be found."}]}]]}]}]],[]]}]}]]}]}]}]]}],"p":"$@8","v":null,"s":"$9"},"c":"$Qa"},"h":{"r":["$","$1","h",{"children":[null,["$","$L15",null,{"children":[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1"}]]}],["$","$L17",null,{"children":[["$","div",null,{"hidden":true,"children":["$","$11",null,{"name":"Next.Metadata","children":[["$","title","0",{"children":"Nassim Berrada | AI Researcher & ML Engineer"}],["$","meta","1",{"name":"description","content":"AI researcher and engineer researching continual learning, symbolic reasoning, autonomous agents, and ML systems. Empirical case studies and research notes."}],["$","meta","2",{"name":"author","content":"Nassim Berrada"}],["$","meta","3",{"name":"keywords","content":"AI Researcher,Machine Learning,Continual Learning,Symbolic Reasoning,AI Agents,LLM Router,Ivy Framework,Quantitative Finance,Unfolding Labs"}]]}]}],null]}],["$","meta",null,{"name":"next-size-adjust","content":""}]]}],"p":"$@18","v":null,"s":"$9"}},"a":"$@19","u":"$@1a","b":"Pw826GcVvKEmFknw4heRD"}
+12:null
+9:300
+1a:true
+9:C
+19:0
+8:"$undefined"
+18:"$undefined"
+13:"$undefined"
