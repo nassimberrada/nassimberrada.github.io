@@ -321,7 +321,7 @@ export const PROJECTS: Project[] = [
       },
       {
         label: "Demo",
-        url: "https://huggingface.co/nassimberrada/geometric-sentinel",
+        url: "https://huggingface.co/spaces/nassimberrada/geometric-sentinel",
         type: "demo",
       },
       {
