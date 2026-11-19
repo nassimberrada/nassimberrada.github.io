@@ -1,0 +1,12 @@
+:HL["/_next/static/media/26d4368bf94c0ec4-s.p.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
+:HL["/_next/static/media/7b89a4fd5e90ede0-s.p.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
+:HL["/_next/static/media/af5dd2b5d3f396f3-s.p.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
+:HL["/_next/static/media/cdec7fa3927eb560-s.p.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
+:HL["/_next/static/media/d9a2293b6b8212a5-s.p.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
+:HL["/_next/static/media/fe486b1aba70499c-s.p.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
+:HL["/_next/static/css/4ecdc70efbb5063f.css","style"]
+:HL["/_next/static/css/a0122a330d10ae09.css","style"]
+3:[["children",{"s":"__PAGE__","h":160}]]
+2:[["children",{"s":{"n":"slug","t":"d","k":"geometric-sentinel","s":[]},"h":96,"c":"$Q3"}]]
+1:[["children",{"s":"projects","h":96,"c":"$Q2"}]]
+0:{"b":"fqg9IWZzC1C1fqNHQuE0r","t":{"t":{"s":"","h":80,"c":"$Q1"}}}
