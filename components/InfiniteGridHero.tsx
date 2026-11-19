@@ -24,6 +24,7 @@ import { getAutonomousCodeGenCardSvg } from "@/components/figures/AutonomousCode
 import { getRagDocsAssistantCardSvg } from "@/components/figures/CustomRagDocsVisual";
 import { getOrthoLoraCardSvg } from "@/components/figures/OrthoLoraVisual";
 import { getDriftLabCardSvg } from "@/components/figures/DriftLabVisual";
+import { getGeometricSentinelCardSvg } from "@/components/figures/GeometricSentinelVisual";
 import { getBfrbCardSvg } from "@/components/figures/BfrbDetectionVisual";
 import { getSpotifyTrendCardSvg } from "@/components/figures/SpotifyTrendVisual";
 import { getFreightPricingCardSvg } from "@/components/figures/FreightPricingVisual";
@@ -475,6 +476,8 @@ export function InfiniteGridHero() {
           ? getOrthoLoraCardSvg()
           : slug === "driftlab-agent-adaptation"
           ? getDriftLabCardSvg()
+          : slug === "geometric-sentinel"
+          ? getGeometricSentinelCardSvg()
           : slug === "pediatric-bfrb-classification"
           ? getBfrbCardSvg()
           : slug === "spotify-sound-trend-evolution"
@@ -520,6 +523,11 @@ export function InfiniteGridHero() {
           { selector: ".driftlab-change-marker", frames: [{ strokeDashoffset: 0 }, { strokeDashoffset: -24 }], duration: 1600, easing: "linear", dash: "flow" },
           { selector: ".driftlab-change-point", frames: [{ transform: "scale(1)", opacity: 0.25 }, { transform: "scale(1.42)", opacity: 1 }, { transform: "scale(1)", opacity: 0.25 }], duration: 1650 },
           { selector: ".driftlab-recovery-step", frames: [{ opacity: 0.2, fillOpacity: 0.15 }, { opacity: 1, fillOpacity: 0.85 }, { opacity: 0.2, fillOpacity: 0.15 }], duration: 1300, delay: 340 },
+        ],
+        "geometric-sentinel": [
+          { selector: ".sentinel-cluster-a", frames: [{ transform: "scale(1)", opacity: 0.7 }, { transform: "scale(1.15)", opacity: 1 }, { transform: "scale(1)", opacity: 0.7 }], duration: 1700, easing: "ease-in-out" },
+          { selector: ".sentinel-cluster-b", frames: [{ transform: "scale(1)", opacity: 0.7 }, { transform: "scale(1.15)", opacity: 1 }, { transform: "scale(1)", opacity: 0.7 }], duration: 1700, delay: 400, easing: "ease-in-out" },
+          { selector: ".sentinel-margin-bracket", frames: [{ opacity: 0.3, strokeWidth: 1 }, { opacity: 1, strokeWidth: 2 }, { opacity: 0.3, strokeWidth: 1 }], duration: 1400, delay: 200 },
         ],
         "llm-observability-platform": [
           { selector: ".observability-trace", frames: [{ strokeDashoffset: 1, opacity: 0.15 }, { strokeDashoffset: 0, opacity: 1 }], duration: 1800, delay: 260, easing: "ease-out", dash: "draw" },

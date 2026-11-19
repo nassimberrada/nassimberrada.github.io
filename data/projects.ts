@@ -116,6 +116,7 @@ export type TopicTag = CardTag;
 const PROJECT_CARD_TOPICS: Record<string, [CardTag, CardTag]> = {
   "endogenous-subspace-orthogonalization": ["Model Training", "Evaluation"],
   "driftlab-agent-adaptation": ["AI Agents", "Evaluation"],
+  "geometric-sentinel": ["Model Training", "Evaluation"],
   "autonomous-ai-teammates": ["AI Agents", "LLM Systems"],
   "neural-llm-router": ["LLM Systems", "Optimization"],
   "llm-observability-platform": ["LLM Systems", "Evaluation"],
@@ -272,6 +273,130 @@ export const PROJECTS: Project[] = [
         metric: "Capacity Threshold r ≥ 8",
         description:
           "Rank below 8 caused capacity collapse; mid-layer interventions produced the strongest causal steering.",
+      },
+    ],
+  },
+  {
+    id: "ul-2",
+    slug: "geometric-sentinel",
+    title: "Geometric Sentinel Auditing: Timely Rehearsal in Adapter Continual Learning",
+    subtitle: "Lightweight forward-only activation telemetry and manifold entanglement tripwires for event-driven continual LoRA adaptation",
+    company: "Unfolding Labs",
+    companySlug: "unfolding-labs",
+    role: "AI Researcher",
+    period: "2026 — Present",
+    category: "Research",
+    featured: true,
+    featuredSpan: "horizontal",
+    latexTags: ["Continual Learning", "LoRA", "Mechanistic Interpretability", "Manifold Learning", "Research"],
+    domainTags: ["Continual Learning", "Model Training"],
+    metrics: [
+      { label: "Advance Warning", value: "+10 Steps", detail: "Δt lead time before accuracy collapses" },
+      { label: "Skill A Retention", value: "74.8%", detail: "+2.8 pp gain over scalar distance tracking" },
+      { label: "Plasticity Score", value: "79.6%", detail: "Matches pure stream (80.2%) with 0 dilution" },
+      { label: "Replay Tokens", value: "47% Less", detail: "17.3k vs 32.6k tokens consumed vs static 20%" },
+    ],
+    challenge:
+      "Updating parameter-efficient adapters across a continuous stream of tasks induces catastrophic forgetting of earlier skills. Standard experience replay relies on static data mixing or blind periodic schedules that squander compute rehearsing stable skills and dilute incoming gradients, depressing adaptation plasticity. Meanwhile, gradient-projection (A-GEM) and backward-pass diagnostics double training latency and memory.",
+    architecture:
+      "A forward-only telemetry harness that periodically audits a small frozen pool of anchor prompts (K=32 sentinels) at layer 18 without backward passes or autoregressive generation. Internal activations are decomposed via Dual Gram SVD into task subspaces and a scale-free Relative Manifold Entanglement Index (MEI_rel) that feeds a 4-state deterministic hysteresis controller.",
+    methodology: [
+      "We audit last-token hidden states at intermediate layer 18 in a single non-autoregressive forward pass, completely avoiding backward-pass latency and autoregressive decoding overhead.",
+      "We decompose representations using Dual Gram SVD and Grassmannian canonical angles to isolate benign null-space movements—which absorb over 85% of syntactic displacement—from true task interference.",
+      "We formulate a scale-free Relative Manifold Entanglement Index (MEI_rel) that continuously measures the ratio of intra-class cluster dispersion to inter-class nearest-neighbor margins.",
+      "We enforce a strict prompt-slot invariant that keeps batch size and total optimizer steps constant while dynamically interleaving replay prompts only during actuated rehearsal windows.",
+    ],
+    results: [
+      "Manifold drift breaches the calibrated tripwire at step 20, granting +10 optimizer steps of prospective advance lead time before held-out task accuracy collapses.",
+      "Subspace decomposition resolves the scalar drift paradox, eliminating false alarms on syntactic shifts and removing the silent bleed that causes high false negative rates in extended streams.",
+      "Closed-loop control achieves 74.8% historical task retention alongside 79.6% new task acquisition at 146k GFLOPs, strictly dominating candidate-loss forecasting and periodic replay.",
+      "Interventional delay sweeps confirm that postponing rehearsal by only 60 steps causes post-replay recovery to drop permanently by 4.8 percentage points under identical replay data.",
+    ],
+    techStack: ["PyTorch", "Hugging Face", "Transformers", "PEFT", "LoRA", "NumPy", "SciPy", "LaTeX"],
+    links: [
+      {
+        label: "Code",
+        url: "https://github.com/unfoldinglabs/geometric-sentinel",
+        type: "github",
+      },
+      {
+        label: "Demo",
+        url: "https://huggingface.co/nassimberrada/geometric-sentinel",
+        type: "demo",
+      },
+      {
+        label: "Paper",
+        url: "https://github.com/unfoldinglabs/geometric-sentinel/blob/main/paper/main.pdf",
+        type: "paper",
+      },
+    ],
+
+    // Dedicated research project structure
+    isResearchStructure: true,
+    question:
+      "Can hidden-state geometry warn us before a model starts forgetting?",
+    questionDetails: [
+      "Fine-tuning an adapter across a continuous stream of tasks introduces a dilemma: updating exclusively on new data overwrites low-rank directions essential to prior capabilities, while continuous uniform rehearsal burns compute and dilutes incoming gradients. Detecting impending degradation via backward passes (EWC, A-GEM) doubles latency, while autoregressive loss forecasting scales with completion length and lags behind the damage. Can we detect impending forgetting in a single non-autoregressive forward pass by monitoring internal activation geometry?",
+    ],
+    approach:
+      "Auditing frozen anchor prompts with forward-only telemetry and manifold entanglement tripwires.",
+    approachDetails: [
+      "We audit a small, frozen pool of anchor inputs—sentinel prompts (K=32)—drawn from the original task distribution and strictly quarantined from training. At chunk boundaries, we evaluate these prompts in a single forward pass without autoregressive decoding or backpropagation, extracting the hidden state at the final prompt token (layer 18). Activations are decomposed via Dual Gram SVD into an in-subspace projection and a scale-free Relative Manifold Entanglement Index (MEI_rel), governed by a four-state deterministic hysteresis controller.",
+    ],
+    researchMethodology: [
+      {
+        title: "Forward-Only Sentinel Auditing and Layer Depth Selection",
+        badge: "Qwen2.5-0.5B & LoRA",
+        description:
+          "We evaluate continual adaptation on Qwen2.5-0.5B targeting 9.44 million parameters across all attention and feed-forward projections. Rather than evaluating full completions, we capture representations at intermediate layer 18 where causal self-attention forms an information bottleneck directly preceding the classification head.",
+      },
+      {
+        title: "Subspace Decomposition and the Scalar Drift Paradox",
+        badge: "Dual Gram SVD",
+        description:
+          "We analyze why naive scalar cosine distance fails in continual learning streams. Because benign syntactic updates inhabit a task-invariant null space that absorbs 88% of representational displacement without damaging accuracy, we decompose activations via Dual Gram SVD to measure true in-subspace projection and Grassmannian canonical angle alignment.",
+      },
+      {
+        title: "Scale-Free Relative Manifold Entanglement Index",
+        badge: "Geometric Telemetry",
+        description:
+          "We compute the Relative Manifold Entanglement Index by taking the ratio between intra-class cluster dispersion and inter-class nearest-neighbor margins, normalized by subspace preservation. Under rigid coordinate rotations the index remains quiescent, but it spikes reliably whenever destructive gradient interference begins compressing class decision boundaries.",
+      },
+      {
+        title: "Closed-Loop Hysteresis Control under Fixed Prompt-Slot Budgets",
+        badge: "4-State Actuator",
+        description:
+          "We govern experience replay through a deterministic four-state controller that couples dual coordinate and velocity shock triggers with a bounded rehearsal window and mandatory cooldown period. To ensure fair compute accounting, the total optimizer step count and token exposures remain strictly identical across all tested strategies.",
+      },
+    ],
+    researchFindings: [
+      {
+        title: "Prospective Advance Lead Time Window",
+        badge: "+10 Steps Warning",
+        metric: "τ = 1.65 at Step 20 vs Cliff at Step 30",
+        description:
+          "Internal representations begin shearing well before behavioral failure occurs on surface tokens. Sentinel manifold drift crosses the calibrated tripwire at step 20, providing a 10-step operational warning window before held-out classification accuracy breaches the relative loss cliff at step 30.",
+      },
+      {
+        title: "Pareto-Dominant Retention and Plasticity Balance",
+        badge: "Strict Pareto Dominance",
+        metric: "74.8% Ret · 79.6% Acq · 146k GFLOPs",
+        description:
+          "Closed-loop manifold auditing establishes a superior compute-retention Pareto frontier. It achieves 74.8% retention on earlier skills while preserving 79.6% plasticity on incoming tasks, strictly outperforming periodic rehearsal schedules and autoregressive loss forecasting at a lower compute budget of 146k GFLOPs.",
+      },
+      {
+        title: "Causal Necessity of Prompt Intervention Timing",
+        badge: "Delay Ablation Sweep",
+        metric: "-4.8 pp Loss on 3-Chunk Delay",
+        description:
+          "Controlled delay sweeps prove that timely actuation is causally decisive for model preservation. Delaying the rehearsal window by only 60 steps post-detection causes immediate post-replay recovery to drop from 72.2% down to 67.4%, demonstrating that representations that drift into alternate loss basins cannot be recovered with identical replay volume.",
+      },
+      {
+        title: "Rehearsal Compute and Replay Token Conservation",
+        badge: "47% Token Conservation",
+        metric: "17.3k vs 32.6k Replay Tokens",
+        description:
+          "By triggering replay only when representational stability is genuinely compromised, the event-driven controller requires just four surgical rehearsal windows across thirty chunks. This conserves 47% of replay tokens relative to standard uniform mixing while eliminating persistent gradient dilution.",
       },
     ],
   },

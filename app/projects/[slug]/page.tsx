@@ -53,6 +53,8 @@ import { OrthoLoraFigure } from "@/components/figures/OrthoLoraFigure";
 import { OrthoLoraApproachDiagram } from "@/components/figures/OrthoLoraApproachDiagram";
 import { DriftLabFigure } from "@/components/figures/DriftLabFigure";
 import { DriftLabArchitectureDiagram } from "@/components/figures/DriftLabArchitectureDiagram";
+import { GeometricSentinelFigure } from "@/components/figures/GeometricSentinelFigure";
+import { GeometricSentinelArchitectureDiagram } from "@/components/figures/GeometricSentinelArchitectureDiagram";
 import { BfrbDetectionFigure } from "@/components/figures/BfrbDetectionFigure";
 import { BfrbExperimentalProcessDiagram } from "@/components/figures/BfrbExperimentalProcessDiagram";
 import { SpotifyTrendFigure } from "@/components/figures/SpotifyTrendFigure";
@@ -178,9 +180,9 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
             <div className="space-y-12">
               {/* Section 1: Question */}
               <section className="space-y-4">
-                <div className={`flex items-center gap-2 text-xs font-mono font-semibold uppercase tracking-wider ${["driftlab-agent-adaptation", "endogenous-subspace-orthogonalization"].includes(project.slug) ? "text-emerald-600 dark:text-emerald-400" : "text-blue-600 dark:text-blue-400"}`}>
+                <div className={`flex items-center gap-2 text-xs font-mono font-semibold uppercase tracking-wider ${["driftlab-agent-adaptation", "endogenous-subspace-orthogonalization", "geometric-sentinel"].includes(project.slug) ? "text-emerald-600 dark:text-emerald-400" : "text-blue-600 dark:text-blue-400"}`}>
                   <HelpCircle className="w-4 h-4" />
-                  <span>{["driftlab-agent-adaptation", "endogenous-subspace-orthogonalization"].includes(project.slug) ? "Question" : "01 / Question"}</span>
+                  <span>{["driftlab-agent-adaptation", "endogenous-subspace-orthogonalization", "geometric-sentinel"].includes(project.slug) ? "Question" : "01 / Question"}</span>
                 </div>
 
                 <div className="space-y-4 text-base text-[var(--foreground)] leading-relaxed">
@@ -192,9 +194,9 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
 
               {/* Section 2: Approach */}
               <section className="space-y-6">
-                <div className={`flex items-center gap-2 text-xs font-mono font-semibold uppercase tracking-wider ${["driftlab-agent-adaptation", "endogenous-subspace-orthogonalization"].includes(project.slug) ? "text-emerald-600 dark:text-emerald-400" : "text-blue-600 dark:text-blue-400"}`}>
+                <div className={`flex items-center gap-2 text-xs font-mono font-semibold uppercase tracking-wider ${["driftlab-agent-adaptation", "endogenous-subspace-orthogonalization", "geometric-sentinel"].includes(project.slug) ? "text-emerald-600 dark:text-emerald-400" : "text-blue-600 dark:text-blue-400"}`}>
                   <Compass className="w-4 h-4" />
-                  <span>{["driftlab-agent-adaptation", "endogenous-subspace-orthogonalization"].includes(project.slug) ? "Approach" : "02 / Approach"}</span>
+                  <span>{["driftlab-agent-adaptation", "endogenous-subspace-orthogonalization", "geometric-sentinel"].includes(project.slug) ? "Approach" : "02 / Approach"}</span>
                 </div>
 
                 <div className="space-y-4 text-base text-[var(--foreground)] leading-relaxed">
@@ -210,23 +212,30 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
                 {project.slug === "driftlab-agent-adaptation" && (
                   <DriftLabFigure />
                 )}
+                {project.slug === "geometric-sentinel" && (
+                  <GeometricSentinelFigure />
+                )}
               </section>
 
               {/* Section 3: Methodology */}
               <section className="space-y-6">
-                <div className={`flex items-center gap-2 text-xs font-mono font-semibold uppercase tracking-wider ${["driftlab-agent-adaptation", "endogenous-subspace-orthogonalization"].includes(project.slug) ? "text-emerald-600 dark:text-emerald-400" : "text-blue-600 dark:text-blue-400"}`}>
+                <div className={`flex items-center gap-2 text-xs font-mono font-semibold uppercase tracking-wider ${["driftlab-agent-adaptation", "endogenous-subspace-orthogonalization", "geometric-sentinel"].includes(project.slug) ? "text-emerald-600 dark:text-emerald-400" : "text-blue-600 dark:text-blue-400"}`}>
                   <FlaskConical className="w-4 h-4" />
-                  <span>{["driftlab-agent-adaptation", "endogenous-subspace-orthogonalization"].includes(project.slug) ? "Methodology" : "03 / Methodology"}</span>
+                  <span>{["driftlab-agent-adaptation", "endogenous-subspace-orthogonalization", "geometric-sentinel"].includes(project.slug) ? "Methodology" : "03 / Methodology"}</span>
                 </div>
 
                 <p className="text-base text-[var(--muted)] leading-relaxed">
                   {project.slug === "endogenous-subspace-orthogonalization" ? (
                     <>
-                      Empirical evaluation protocol, loss optimization formulation, and layer interventions inferred directly from the research repository (<code className="text-[var(--foreground)] font-mono">~/Code/ortho-lora</code>):
+                      Empirical evaluation protocol, loss optimization formulation, and layer interventions inferred directly from the research repository:
                     </>
                   ) : project.slug === "driftlab-agent-adaptation" ? (
                     <>
                       DriftLab pairs six seeded workplace worlds with controlled change protocols and an evaluator-only record of ground truth. This lets each memory setup face the same tasks and feedback, while four change probes measure detection, recovery, retention, and over-updating across three memory layers:
+                    </>
+                  ) : project.slug === "geometric-sentinel" ? (
+                    <>
+                      Non-autoregressive forward auditing protocol, Dual Gram SVD decomposition, and four-state hysteresis actuation synthesized directly from the research repository:
                     </>
                   ) : (
                     <>Empirical evaluation protocol and research methodology:</>
@@ -252,14 +261,17 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
                 {project.slug === "driftlab-agent-adaptation" && (
                   <DriftLabArchitectureDiagram />
                 )}
+                {project.slug === "geometric-sentinel" && (
+                  <GeometricSentinelArchitectureDiagram />
+                )}
 
               </section>
 
               {/* Section 4: Findings */}
               <section className="space-y-6">
-                <div className={`flex items-center gap-2 text-xs font-mono font-semibold uppercase tracking-wider ${["driftlab-agent-adaptation", "endogenous-subspace-orthogonalization"].includes(project.slug) ? "text-emerald-600 dark:text-emerald-400" : "text-blue-600 dark:text-blue-400"}`}>
+                <div className={`flex items-center gap-2 text-xs font-mono font-semibold uppercase tracking-wider ${["driftlab-agent-adaptation", "endogenous-subspace-orthogonalization", "geometric-sentinel"].includes(project.slug) ? "text-emerald-600 dark:text-emerald-400" : "text-blue-600 dark:text-blue-400"}`}>
                   <Lightbulb className="w-4 h-4" />
-                  <span>{["driftlab-agent-adaptation", "endogenous-subspace-orthogonalization"].includes(project.slug) ? "Findings" : "04 / Findings"}</span>
+                  <span>{["driftlab-agent-adaptation", "endogenous-subspace-orthogonalization", "geometric-sentinel"].includes(project.slug) ? "Findings" : "04 / Findings"}</span>
                 </div>
 
                 <p className="text-base text-[var(--muted)] leading-relaxed">
@@ -267,6 +279,8 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
                     ? "Experimental verification, geometric superposition collapse metrics, and theoretical boundary conditions synthesized from published paper tables and benchmark sweeps:"
                     : project.slug === "driftlab-agent-adaptation"
                     ? "Empirical benchmark characterization, paired statistical effects (95% CI), and registered hypothesis falsifications synthesized from published evaluation runs:"
+                    : project.slug === "geometric-sentinel"
+                    ? "Pre-emptive warning windows, scalar drift paradox resolution, and Pareto-advantageous closed-loop retention verified across sequential continual learning streams:"
                     : "Key empirical findings, statistical results, and analytical conclusions:"}
                 </p>
 

@@ -22,6 +22,7 @@ export const EXPERIENCES: ExperienceRole[] = [
     bulletSlugs: [
       "endogenous-subspace-orthogonalization",
       "driftlab-agent-adaptation",
+      "geometric-sentinel",
     ],
   },
   {

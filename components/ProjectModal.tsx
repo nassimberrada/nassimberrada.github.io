@@ -42,6 +42,8 @@ import { OrthoLoraFigure } from "@/components/figures/OrthoLoraFigure";
 import { OrthoLoraApproachDiagram } from "@/components/figures/OrthoLoraApproachDiagram";
 import { DriftLabFigure } from "@/components/figures/DriftLabFigure";
 import { DriftLabArchitectureDiagram } from "@/components/figures/DriftLabArchitectureDiagram";
+import { GeometricSentinelFigure } from "@/components/figures/GeometricSentinelFigure";
+import { GeometricSentinelArchitectureDiagram } from "@/components/figures/GeometricSentinelArchitectureDiagram";
 import { BfrbDetectionFigure } from "@/components/figures/BfrbDetectionFigure";
 import { BfrbExperimentalProcessDiagram } from "@/components/figures/BfrbExperimentalProcessDiagram";
 import { SpotifyTrendFigure } from "@/components/figures/SpotifyTrendFigure";
@@ -173,36 +175,14 @@ export function ProjectModal({
 
         {/* Scrollable Content Body */}
         <div className="project-dialog-content flex-1 overflow-y-auto px-6 sm:px-10 py-7 sm:py-9 space-y-10 sm:space-y-12">
-          {/* External Links */}
-          {currentProject.links && currentProject.links.length > 0 && (
-            <div className="flex flex-wrap items-center gap-3">
-              {currentProject.links.map((link, idx) => (
-                <a
-                  key={idx}
-                  href={link.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-medium transition-all shadow-sm"
-                >
-                  {link.type === "github" ? (
-                    <GithubIcon className="w-4 h-4" />
-                  ) : (
-                    <ExternalLink className="w-4 h-4" />
-                  )}
-                  <span>{link.label}</span>
-                </a>
-              ))}
-            </div>
-          )}
-
           {/* Research Projects: Question, Approach, Methodology, Findings */}
           {currentProject.isResearchStructure ? (
             <div className="space-y-8">
               {/* 1. Section: Question */}
               <div className="space-y-3">
-                <div className={`flex items-center gap-2 text-xs font-mono font-semibold uppercase tracking-wider ${["driftlab-agent-adaptation", "endogenous-subspace-orthogonalization"].includes(currentProject.slug) ? "text-emerald-600 dark:text-emerald-400" : "text-blue-600 dark:text-blue-400"}`}>
+                <div className={`flex items-center gap-2 text-xs font-mono font-semibold uppercase tracking-wider ${["driftlab-agent-adaptation", "endogenous-subspace-orthogonalization", "geometric-sentinel"].includes(currentProject.slug) ? "text-emerald-600 dark:text-emerald-400" : "text-blue-600 dark:text-blue-400"}`}>
                   <HelpCircle className="w-4 h-4" />
-                  <span>{["driftlab-agent-adaptation", "endogenous-subspace-orthogonalization"].includes(currentProject.slug) ? "Question" : "01 / Question"}</span>
+                  <span>{["driftlab-agent-adaptation", "endogenous-subspace-orthogonalization", "geometric-sentinel"].includes(currentProject.slug) ? "Question" : "01 / Question"}</span>
                 </div>
 
                 <div className="space-y-3 text-sm text-[var(--foreground)] leading-relaxed">
@@ -214,9 +194,9 @@ export function ProjectModal({
 
               {/* 2. Section: Approach */}
               <div className="space-y-4">
-                <div className={`flex items-center gap-2 text-xs font-mono font-semibold uppercase tracking-wider ${["driftlab-agent-adaptation", "endogenous-subspace-orthogonalization"].includes(currentProject.slug) ? "text-emerald-600 dark:text-emerald-400" : "text-blue-600 dark:text-blue-400"}`}>
+                <div className={`flex items-center gap-2 text-xs font-mono font-semibold uppercase tracking-wider ${["driftlab-agent-adaptation", "endogenous-subspace-orthogonalization", "geometric-sentinel"].includes(currentProject.slug) ? "text-emerald-600 dark:text-emerald-400" : "text-blue-600 dark:text-blue-400"}`}>
                   <Compass className="w-4 h-4" />
-                  <span>{["driftlab-agent-adaptation", "endogenous-subspace-orthogonalization"].includes(currentProject.slug) ? "Approach" : "02 / Approach"}</span>
+                  <span>{["driftlab-agent-adaptation", "endogenous-subspace-orthogonalization", "geometric-sentinel"].includes(currentProject.slug) ? "Approach" : "02 / Approach"}</span>
                 </div>
 
                 <div className="space-y-3 text-sm text-[var(--foreground)] leading-relaxed">
@@ -232,22 +212,29 @@ export function ProjectModal({
                 {currentProject.slug === "driftlab-agent-adaptation" && (
                   <DriftLabFigure />
                 )}
+                {currentProject.slug === "geometric-sentinel" && (
+                  <GeometricSentinelFigure />
+                )}
               </div>
 
               {/* 3. Section: Methodology */}
               <div className="space-y-4">
-                <div className={`flex items-center gap-2 text-xs font-mono font-semibold uppercase tracking-wider ${["driftlab-agent-adaptation", "endogenous-subspace-orthogonalization"].includes(currentProject.slug) ? "text-emerald-600 dark:text-emerald-400" : "text-blue-600 dark:text-blue-400"}`}>
+                <div className={`flex items-center gap-2 text-xs font-mono font-semibold uppercase tracking-wider ${["driftlab-agent-adaptation", "endogenous-subspace-orthogonalization", "geometric-sentinel"].includes(currentProject.slug) ? "text-emerald-600 dark:text-emerald-400" : "text-blue-600 dark:text-blue-400"}`}>
                   <FlaskConical className="w-4 h-4" />
-                  <span>{["driftlab-agent-adaptation", "endogenous-subspace-orthogonalization"].includes(currentProject.slug) ? "Methodology" : "03 / Methodology"}</span>
+                  <span>{["driftlab-agent-adaptation", "endogenous-subspace-orthogonalization", "geometric-sentinel"].includes(currentProject.slug) ? "Methodology" : "03 / Methodology"}</span>
                 </div>
                 <p className="text-sm text-[var(--muted)] leading-relaxed">
                   {currentProject.slug === "endogenous-subspace-orthogonalization" ? (
                     <>
-                      Empirical evaluation protocol, loss optimization formulation, and layer interventions inferred directly from the research repository (<code className="text-[var(--foreground)] font-mono">~/Code/ortho-lora</code>):
+                      Empirical evaluation protocol, loss optimization formulation, and layer interventions inferred directly from the research repository:
                     </>
                   ) : currentProject.slug === "driftlab-agent-adaptation" ? (
                     <>
                       DriftLab pairs six seeded workplace worlds with controlled change protocols and an evaluator-only record of ground truth. This lets each memory setup face the same tasks and feedback, while four change probes measure detection, recovery, retention, and over-updating across three memory layers:
+                    </>
+                  ) : currentProject.slug === "geometric-sentinel" ? (
+                    <>
+                      Non-autoregressive forward auditing protocol, Dual Gram SVD decomposition, and four-state hysteresis actuation synthesized directly from the research repository:
                     </>
                   ) : (
                     <>Empirical evaluation protocol and research methodology:</>
@@ -273,20 +260,25 @@ export function ProjectModal({
                 {currentProject.slug === "driftlab-agent-adaptation" && (
                   <DriftLabArchitectureDiagram />
                 )}
+                {currentProject.slug === "geometric-sentinel" && (
+                  <GeometricSentinelArchitectureDiagram />
+                )}
 
               </div>
 
               {/* 4. Section: Findings */}
               <div className="space-y-3">
-                <div className={`flex items-center gap-2 text-xs font-mono font-semibold uppercase tracking-wider ${["driftlab-agent-adaptation", "endogenous-subspace-orthogonalization"].includes(currentProject.slug) ? "text-emerald-600 dark:text-emerald-400" : "text-blue-600 dark:text-blue-400"}`}>
+                <div className={`flex items-center gap-2 text-xs font-mono font-semibold uppercase tracking-wider ${["driftlab-agent-adaptation", "endogenous-subspace-orthogonalization", "geometric-sentinel"].includes(currentProject.slug) ? "text-emerald-600 dark:text-emerald-400" : "text-blue-600 dark:text-blue-400"}`}>
                   <Lightbulb className="w-4 h-4" />
-                  <span>{["driftlab-agent-adaptation", "endogenous-subspace-orthogonalization"].includes(currentProject.slug) ? "Findings" : "04 / Findings"}</span>
+                  <span>{["driftlab-agent-adaptation", "endogenous-subspace-orthogonalization", "geometric-sentinel"].includes(currentProject.slug) ? "Findings" : "04 / Findings"}</span>
                 </div>
                 <p className="text-sm text-[var(--muted)] leading-relaxed">
                   {currentProject.slug === "endogenous-subspace-orthogonalization"
                     ? "Experimental verification, geometric superposition collapse metrics, and theoretical boundary conditions synthesized from published paper tables and benchmark sweeps:"
                     : currentProject.slug === "driftlab-agent-adaptation"
                     ? "Empirical benchmark characterization, paired statistical effects (95% CI), and registered hypothesis falsifications synthesized from published evaluation runs:"
+                    : currentProject.slug === "geometric-sentinel"
+                    ? "Pre-emptive warning windows, scalar drift paradox resolution, and Pareto-advantageous closed-loop retention verified across sequential continual learning streams:"
                     : "Key empirical findings, statistical results, and analytical conclusions:"}
                 </p>
 
@@ -890,18 +882,60 @@ export function ProjectModal({
         </>
       )}
     </div>
-    {(currentProject.slug === "autonomous-ai-teammates" || currentProject.slug === "driftlab-agent-adaptation" || currentProject.slug === "neural-llm-router" || currentProject.slug === "distforge" || currentProject.slug === "endogenous-subspace-orthogonalization" || currentProject.slug === "ivy-framework-transpiler" || currentProject.slug === "llm-observability-platform") && (
-      <div className="flex shrink-0 items-center justify-between gap-3 border-t border-[var(--border)] bg-[var(--card)]/95 px-6 py-3 backdrop-blur-sm">
-        <span className="text-xs text-[var(--muted)]">Project Link</span>
-        <a
-          href={currentProject.slug === "driftlab-agent-adaptation" ? "https://www.unfoldinglabs.ai/research/driftlab-agent-adaptation" : currentProject.slug === "endogenous-subspace-orthogonalization" ? "https://www.unfoldinglabs.ai/research/endogenous-subspace-orthogonalization" : currentProject.slug === "neural-llm-router" ? "https://www.producthunt.com/products/unify-5/launches/unify-router" : currentProject.slug === "distforge" ? "http://github.com/nassimberrada/distforge/" : currentProject.slug === "ivy-framework-transpiler" ? "https://github.com/unifyai/ivy" : currentProject.slug === "llm-observability-platform" ? "https://www.producthunt.com/products/unify-5/launches/unify-interfaces" : "https://www.producthunt.com/products/unify-5"}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex shrink-0 items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-emerald-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2"
-        >
-          <ExternalLink className="h-3.5 w-3.5" />
-          {currentProject.slug === "driftlab-agent-adaptation" || currentProject.slug === "endogenous-subspace-orthogonalization" ? "Open research post" : currentProject.slug === "distforge" || currentProject.slug === "ivy-framework-transpiler" ? "GitHub Repository" : "Product Hunt"}
-        </a>
+    {(currentProject.links?.length > 0 ||
+      ["autonomous-ai-teammates", "driftlab-agent-adaptation", "neural-llm-router", "distforge", "endogenous-subspace-orthogonalization", "ivy-framework-transpiler", "llm-observability-platform"].includes(currentProject.slug)) && (
+      <div className="flex shrink-0 items-center justify-between gap-3 border-t border-[var(--border)] bg-[var(--card)]/95 px-6 py-3.5 backdrop-blur-sm">
+        <span className="text-xs font-mono text-[var(--muted)]">
+          {currentProject.links && currentProject.links.length > 1 ? "Project Links & Artifacts" : "Project Link"}
+        </span>
+        <div className="flex flex-wrap items-center gap-2">
+          {currentProject.links && currentProject.links.length > 0 ? (
+            currentProject.links.map((link, idx) => (
+              <a
+                key={idx}
+                href={link.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-emerald-600 px-3.5 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-emerald-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2"
+              >
+                {link.type === "github" ? (
+                  <GithubIcon className="h-3.5 w-3.5" />
+                ) : (
+                  <ExternalLink className="h-3.5 w-3.5" />
+                )}
+                <span>{link.label}</span>
+              </a>
+            ))
+          ) : (
+            <a
+              href={
+                currentProject.slug === "driftlab-agent-adaptation"
+                  ? "https://www.unfoldinglabs.ai/research/driftlab-agent-adaptation"
+                  : currentProject.slug === "endogenous-subspace-orthogonalization"
+                  ? "https://www.unfoldinglabs.ai/research/endogenous-subspace-orthogonalization"
+                  : currentProject.slug === "neural-llm-router"
+                  ? "https://www.producthunt.com/products/unify-5/launches/unify-router"
+                  : currentProject.slug === "distforge"
+                  ? "http://github.com/nassimberrada/distforge/"
+                  : currentProject.slug === "ivy-framework-transpiler"
+                  ? "https://github.com/unifyai/ivy"
+                  : currentProject.slug === "llm-observability-platform"
+                  ? "https://www.producthunt.com/products/unify-5/launches/unify-interfaces"
+                  : "https://www.producthunt.com/products/unify-5"
+              }
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex shrink-0 items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-emerald-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2"
+            >
+              <ExternalLink className="h-3.5 w-3.5" />
+              {currentProject.slug === "driftlab-agent-adaptation" || currentProject.slug === "endogenous-subspace-orthogonalization"
+                ? "Open research post"
+                : currentProject.slug === "distforge" || currentProject.slug === "ivy-framework-transpiler"
+                ? "GitHub Repository"
+                : "Product Hunt"}
+            </a>
+          )}
+        </div>
       </div>
     )}
   </div>
